@@ -180,5 +180,6 @@
   :general(:states 'normal :prefix "<SPC>g"
 				   "g" 'magit
 				   "p" 'magit-push
-				   "cc" 'magit-commit
-				   "ca" 'magit-commit-amend))
+				   "c" 'magit-commit
+				   "s" 'magit-stage
+				   "b" 'magit-branch))

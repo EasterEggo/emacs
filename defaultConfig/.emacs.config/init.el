@@ -62,6 +62,8 @@
 (use-package general
   :ensure (:wait t))
 
+(use-package rg)
+
 (use-package doom-themes
   :demand t
   :config
@@ -116,7 +118,9 @@
 		   "sl" 'consult-line))
 
 (use-package projectile
+  :after evil
   :config
+  (evil-global-set-key 'normal (kbd "<SPC>p") 'projectile-command-map)
   (projectile-mode 1))
 
 (use-package corfu

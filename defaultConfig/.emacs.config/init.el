@@ -174,12 +174,17 @@
   (dashboard-setup-startup-hook))
 (setq initial-buffer-choice (lambda () (get-buffer-create dashboard-buffer-name)))
 (use-package transient)
+(use-package diff-hl
+  :config
+  (global-diff-hl-mode)
+  (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh))
 (use-package magit
   :after transient
-  :commands (magit)
   :general(:states 'normal :prefix "<SPC>g"
 				   "g" 'magit
 				   "p" 'magit-push
 				   "c" 'magit-commit
+				   "i" 'magit-init
 				   "s" 'magit-stage
-				   "b" 'magit-branch))
+				   "b" 'magit-branch
+				   "C" 'magit-clone))

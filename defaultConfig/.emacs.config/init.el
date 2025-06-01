@@ -1,4 +1,5 @@
 ;init.el -*- lexical-binding: t; -*- 
+(setq inhibit-startup-screen t)
 (global-display-line-numbers-mode 1)
 (menu-bar-mode 0)
 (tool-bar-mode 0)
@@ -56,13 +57,13 @@
 
 (elpaca elpaca-use-package
   (elpaca-use-package-mode))
+(setq use-package-always-ensure t)
 
 (use-package general
   :ensure (:wait t))
 
 (use-package doom-themes
   :demand t
-  :ensure t
   :config
   (setq doom-themes-enable-bold t
         doom-themes-enable-italic t)
@@ -80,17 +81,14 @@
   :ensure t)
 
 (use-package rainbow-delimiters
-  :ensure t
   :config
   (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
 
 (use-package evil
-  :ensure t
   :hook (elpaca-after-init-hook . evil-mode))
 
 ;; Enable Vertico.
 (use-package vertico
-  :ensure t
   :commands (execute-extended-command)
   :general
   (:states 'normal :prefix "<SPC>"
@@ -112,7 +110,6 @@
               ("M-DEL" . vertico-directory-delete-word))
   :hook (rfn-eshadow-update-overlay . vertico-directory-tidy))
 (use-package consult
-  :ensure t
   :general
   (:states 'normal :prefix "<SPC>"
 		   "sd" 'consult-find
@@ -121,12 +118,10 @@
 		   "sb" 'consult-buffer
 		   "sl" 'consult-line))
 (use-package projectile
-  :ensure t
   :config
-  (evil-define-key 'normal)
-  :after consult)
+  (projectile-mode 1))
+
 (use-package corfu
-  :ensure t
   :after evil
   :custom
   (corfu-auto t)
@@ -137,7 +132,6 @@
   (global-corfu-mode))
 (use-package cape
   :after corfu
-  :ensure t
   :init
   ;(add-hook 'completion-at-point-functions #'cape-dabbrev)
   (add-hook 'completion-at-point-functions #'cape-file)
@@ -147,27 +141,29 @@
   )
 
 (use-package orderless
-  :ensure t
+  :after corfu
   :custom
   (completion-styles '(orderless basic))
   (completion-category-defaults nil)
   (completion-category-overrides '((file (styles partial-completion)))))
 
 (use-package savehist
-  :ensure t
   :after vertico
   :init
   (savehist-mode))
 
 (use-package marginalia
-  :ensure t
   :after vertico
   :init
   (marginalia-mode))
 
 (use-package dashboard
-  :ensure t
   :config
+  (setq dashboard-display-icons-p t)
+  (setq dashboard-icon-type 'nerd-icons)
+  (setq dashboard-set-heading-icons t)
+  (setq dashboard-set-file-icons t)
+  (setq dashboard-projects-backend 'projectile)
   (setq dashboard-items '((recents   . 5)
                           (bookmarks . 5)
                           (projects  . 5)
@@ -176,3 +172,13 @@
   (add-hook 'elpaca-after-init-hook #'dashboard-insert-startupify-lists)
   (add-hook 'elpaca-after-init-hook #'dashboard-initialize)
   (dashboard-setup-startup-hook))
+(setq initial-buffer-choice (lambda () (get-buffer-create dashboard-buffer-name)))
+(use-package transient)
+(use-package magit
+  :after transient
+  :commands (magit)
+  :general(:states 'normal :prefix "<SPC>g"
+				   "g" 'magit
+				   "p" 'magit-push
+				   "cc" 'magit-commit
+				   "ca" 'magit-commit-amend))

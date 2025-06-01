@@ -87,16 +87,12 @@
 (use-package evil
   :hook (elpaca-after-init-hook . evil-mode))
 
-;; Enable Vertico.
 (use-package vertico
   :commands (execute-extended-command)
   :general
   (:states 'normal :prefix "<SPC>"
 		"<SPC>" 'execute-extended-command)
   :custom
-  ;; (vertico-scroll-margin 0) ;; Different scroll margin
-  ;; (vertico-count 20) ;; Show more candidates
-  ;; (vertico-resize t) ;; Grow and shrink the Vertico minibuffer
   (vertico-cycle t)
   :init
   (vertico-mode))
@@ -116,7 +112,9 @@
 		   "sg" 'consult-ripgrep
 		   "sr" 'consult-recent-file
 		   "sb" 'consult-buffer
+		   "st" 'consult-theme
 		   "sl" 'consult-line))
+
 (use-package projectile
   :config
   (projectile-mode 1))
@@ -174,17 +172,21 @@
   (dashboard-setup-startup-hook))
 (setq initial-buffer-choice (lambda () (get-buffer-create dashboard-buffer-name)))
 (use-package transient)
-(use-package diff-hl
-  :config
-  (global-diff-hl-mode)
-  (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh))
 (use-package magit
   :after transient
   :general(:states 'normal :prefix "<SPC>g"
 				   "g" 'magit
 				   "p" 'magit-push
+				   "P" 'magit-pull
 				   "c" 'magit-commit
 				   "i" 'magit-init
 				   "s" 'magit-stage
+				   "r" 'magit-remote
+				   "o" 'magit-checkout
 				   "b" 'magit-branch
 				   "C" 'magit-clone))
+(use-package diff-hl
+  :defer t
+  :init
+  (global-diff-hl-mode)
+  (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh))

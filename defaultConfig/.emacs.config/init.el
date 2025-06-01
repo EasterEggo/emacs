@@ -194,3 +194,15 @@
   :init
   (global-diff-hl-mode)
   (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh))
+(use-package centaur-tabs
+  :hook
+  (dashboard-mode . centaur-tabs-local-mode)
+  (term-mode . centaur-tabs-local-mode)
+  (calendar-mode . centaur-tabs-local-mode)
+  (org-agenda-mode . centaur-tabs-local-mode)
+  :config
+  (setq centaur-tabs-set-icons t)
+  (setq centaur-tabs-icon-type 'nerd-icons)
+  (setq centaur-tabs-set-modified-marker t)
+  (setq centaur-tabs-height 32)
+  (centaur-tabs-mode t))

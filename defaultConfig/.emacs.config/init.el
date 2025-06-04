@@ -88,6 +88,10 @@
 
 (use-package evil
   :hook (elpaca-after-init-hook . evil-mode))
+(use-package evil-nerd-commenter
+  :after evil
+  :general(:states 'normal
+				   "<SPC>;" 'evilnc-comment-or-uncomment-lines))
 
 (use-package vertico
   :commands (execute-extended-command)
@@ -113,6 +117,7 @@
 		   "sd" 'consult-find
 		   "sg" 'consult-ripgrep
 		   "sr" 'consult-recent-file
+		   "sB" 'consult-bookmark
 		   "sb" 'consult-buffer
 		   "st" 'consult-theme
 		   "sl" 'consult-line))
@@ -206,3 +211,67 @@
   (setq centaur-tabs-set-modified-marker t)
   (setq centaur-tabs-height 32)
   (centaur-tabs-mode t))
+(defun lsp-booster--advice-json-parse (old-fn &rest args)
+  "Try to parse bytecode instead of json."
+  (or
+   (when (equal (following-char) ?#)
+     (let ((bytecode (read (current-buffer))))
+       (when (byte-code-function-p bytecode)
+         (funcall bytecode))))
+   (apply old-fn args)))
+(advice-add (if (progn (require 'json)
+                       (fboundp 'json-parse-buffer))
+                'json-parse-buffer
+              'json-read)
+            :around
+            #'lsp-booster--advice-json-parse)
+(defun lsp-booster--advice-final-command (old-fn cmd &optional test?)
+  "Prepend emacs-lsp-booster command to lsp CMD."
+  (let ((orig-result (funcall old-fn cmd test?)))
+    (if (and (not test?)                             ;; for check lsp-server-present?
+             (not (file-remote-p default-directory)) ;; see lsp-resolve-final-command, it would add extra shell wrapper
+             lsp-use-plists
+             (not (functionp 'json-rpc-connection))  ;; native json-rpc
+             (executable-find "emacs-lsp-booster"))
+        (progn
+          (when-let ((command-from-exec-path (executable-find (car orig-result))))  ;; resolve command from exec-path (in case not found in $PATH)
+            (setcar orig-result command-from-exec-path))
+          (message "Using emacs-lsp-booster for %s!" orig-result)
+          (cons "emacs-lsp-booster" orig-result))
+      orig-result)))
+(advice-add 'lsp-resolve-final-command :around #'lsp-booster--advice-final-command)
+(use-package lsp-mode
+  :hook
+  (c-mode . lsp)
+  (lsp-mode . lsp-enable-which-key-integration)
+  (lsp-mode . lsp-ui-mode)
+  :config
+  (evil-define-key 'normal lsp-mode-map (kbd "<SPC>c") lsp-command-map))
+(use-package lsp-ui :after lsp-mode :commands lsp-ui-mode)
+
+(use-package org-roam
+  :ensure t
+  :custom
+  (org-roam-directory (file-truename "~/Documents/org"))
+  :general (:states 'normal :prefix "<SPC>o"
+		 "n l" 'org-roam-buffer-toggle
+         "f" 'org-roam-node-find
+         "ng" 'org-roam-graph
+         "i" 'org-roam-node-insert
+         "nc" 'org-roam-capture
+         "j" 'org-roam-dailies-capture-today)
+  :config
+  (org-roam-db-autosync-mode)
+  ;; If using org-roam-protocol
+  (require 'org-roam-protocol))
+(use-package org-roam-ui
+  :ensure
+  (:host github :repo "org-roam/org-roam-ui" :branch "main" :files ("*.el" "out"))
+  :after org-roam
+  :commands org-roam-ui-open
+  :config
+  (setq org-roam-ui-sync-theme t
+        org-roam-ui-follow t
+        org-roam-ui-update-on-save t
+        org-roam-ui-open-on-start t))
+(setq org-agenda-files '("~/Documents/agenda.org"))

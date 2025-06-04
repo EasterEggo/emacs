@@ -1,3 +1,4 @@
+(setenv "LSP_USE_PLISTS" "true")
 (add-to-list 'default-frame-alist
              '(background-color . "#000000")
              '(foreground-color . "#FFFFFF"))

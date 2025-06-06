@@ -9,6 +9,7 @@
 (electric-pair-mode 1)
 (electric-indent-mode 1)
 (which-key-mode 1)
+(savehist-mode 1)
 (setq electric-pair-pairs
       '(
         (?\" . ?\")
@@ -113,7 +114,8 @@
   :hook (rfn-eshadow-update-overlay . vertico-directory-tidy))
 (use-package consult
   :general
-  (:states 'normal :prefix "<SPC>"
+  (:states 'normal
+		   :prefix "<SPC>"
 		   "sd" 'consult-find
 		   "sg" 'consult-ripgrep
 		   "sr" 'consult-recent-file
@@ -151,11 +153,6 @@
   (completion-category-defaults nil)
   (completion-category-overrides '((file (styles partial-completion)))))
 
-(use-package savehist
-  :after vertico
-  :init
-  (savehist-mode))
-
 (use-package marginalia
   :after vertico
   :init
@@ -180,13 +177,16 @@
 (use-package transient)
 (use-package magit
   :after transient
-  :general(:states 'normal :prefix "<SPC>g"
+  :general(:states 'normal
+				   :prefix "<SPC>g"
 				   "g" 'magit
 				   "p" 'magit-push
 				   "P" 'magit-pull
 				   "c" 'magit-commit
 				   "i" 'magit-init
 				   "s" 'magit-stage
+				   "u" 'magit-unstage-files
+				   "U" 'magit-unstage-all
 				   "r" 'magit-remote
 				   "o" 'magit-checkout
 				   "b" 'magit-branch
@@ -246,29 +246,42 @@
   (evil-define-key 'normal lsp-mode-map (kbd "<SPC>c") lsp-command-map))
 (use-package lsp-ui :after lsp-mode :commands lsp-ui-mode)
 
-(use-package org-roam
-  :ensure t
-  :custom
-  (org-roam-directory (file-truename "~/Documents/org"))
-  :general (:states 'normal :prefix "<SPC>o"
-		 "nl" 'org-roam-buffer-toggle
-         "f" 'org-roam-node-find
-         "ng" 'org-roam-graph
-         "i" 'org-roam-node-insert
-         "nc" 'org-roam-capture
-         "j" 'org-roam-dailies-capture-today)
+(use-package denote
+  :general(:states 'normal
+				   :prefix "<SPC>n"
+				   "n" 'denote
+				   "r" 'denote-rename-file
+				   "l" 'denote-link
+				   "qc" 'denote-query-contents-link
+				   "qf" 'denote-query-filenames-link
+				   "b" 'denote-backlinks
+				   "d" 'denote-dired
+				   "g" 'denote-grep)
   :config
-  (org-roam-db-autosync-mode)
-  ;; If using org-roam-protocol
-  (require 'org-roam-protocol))
-(use-package org-roam-ui
-  :ensure
-  (:host github :repo "org-roam/org-roam-ui" :branch "main" :files ("*.el" "out"))
-  :after org-roam
-  :commands org-roam-ui-open
+  (setq denote-directory (expand-file-name "~/Documents/denote"))
+  (denote-rename-buffer-mode 1))
+(use-package denote-journal
+  :commands ( denote-journal-new-entry
+              denote-journal-new-or-existing-entry
+              denote-journal-link-or-create-entry)
+  :general
+  (:states 'normal :prefix "<SPC>nj"
+		   "j" 'denote-journal-new-entry
+		   "e" 'denote-journal-new-or-existing-entry
+		   "l" 'denote-journal-link-or-create-entry)
   :config
-  (setq org-roam-ui-sync-theme t
-        org-roam-ui-follow t
-        org-roam-ui-update-on-save t
-        org-roam-ui-open-on-start t))
+  (add-hook 'calendar-mode-hook #'denote-journal-calendar-mode)
+  (setq denote-journal-directory
+        (expand-file-name "journal" denote-directory))
+  (setq denote-journal-keyword "journal")
+  (setq denote-journal-title-format 'day-date-month-year))
+(use-package consult-denote
+  :commands (consult-denote-find
+			 consult-denote-grep)
+  :general
+  (:states 'normal :prefix "<SPC>nf"
+		   "f" 'consult-denote-find
+		   "g" 'consult-denote-grep)
+  :config
+  (consult-denote-mode 1))
 (setq org-agenda-files '("~/Documents/agenda.org"))

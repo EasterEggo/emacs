@@ -86,6 +86,7 @@
 
 (use-package undo-tree
   :config
+  (setq undo-tree-history-directory-alist '(("." . "~/.emacs.config/undo")))
   (global-undo-tree-mode 1))
 (setq evil-undo-system 'undo-tree)
 

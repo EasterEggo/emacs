@@ -83,6 +83,12 @@
 (use-package evil
   :config
   (evil-mode 1))
+
+(use-package undo-tree
+  :config
+  (global-undo-tree-mode 1))
+(setq evil-undo-system 'undo-tree)
+
 (use-package evil-nerd-commenter
   :after evil
   :general(:states 'normal
@@ -160,7 +166,7 @@
 
 (use-package dashboard
   :config
-  (setq dashboard-startup-banner '(expand-file-name ("~/emacs/defaultConfig/.emacs.config/dash.txt")))
+  (setq dashboard-startup-banner '("~/emacs/defaultConfig/.emacs.config/dash.txt"))
   (setq dashboard-display-icons-p t)
   (setq dashboard-center-content t)
   (setq dashboard-vertically-center-content t)

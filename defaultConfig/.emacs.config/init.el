@@ -5,6 +5,7 @@
 (tool-bar-mode 0)
 (scroll-bar-mode 0)
 (setq make-backup-files nil)
+(global-hl-line-mode 1)
 (recentf-mode 1)
 (electric-pair-mode 1)
 (electric-indent-mode 1)
@@ -66,10 +67,14 @@
 ;(use-package modus-themes
 ;  :config
 ;  (load-theme 'modus-vivendi t))
-(use-package ef-themes
+(use-package ef-themes)
+  ;; :init
+  ;; (mapc #'disable-theme custom-enabled-themes)
+  ;; (load-theme 'ef-dream t))
+(use-package doom-themes
   :init
   (mapc #'disable-theme custom-enabled-themes)
-  (load-theme 'ef-dream t))
+  (load-theme 'doom-gruvbox t))
 (use-package doom-modeline
   :init (doom-modeline-mode 1))
 
@@ -94,7 +99,6 @@
   :after evil
   :general(:states 'normal
 				   "<SPC>;" 'evilnc-comment-or-uncomment-lines))
-
 (use-package vertico
   :general (:states 'normal :prefix "<SPC>"
 					"." 'find-file
@@ -167,6 +171,7 @@
 
 (use-package dashboard
   :config
+  (add-hook 'dashboard-mode-hook '(diff-hl-mode 0))
   (setq dashboard-startup-banner '("~/emacs/defaultConfig/.emacs.config/dash.txt"))
   (setq dashboard-display-icons-p t)
   (setq dashboard-center-content t)
@@ -255,15 +260,6 @@
           (cons "emacs-lsp-booster" orig-result))
       orig-result)))
 (advice-add 'lsp-resolve-final-command :around #'lsp-booster--advice-final-command)
-(use-package lsp-mode
-  :hook
-  (c-mode . lsp)
-  (lsp-mode . lsp-enable-which-key-integration)
-  (lsp-mode . lsp-ui-mode)
-  :config
-  (evil-define-key 'normal lsp-mode-map (kbd "<SPC>c") lsp-command-map))
-(use-package lsp-ui :commands lsp-ui-mode)
-
 (use-package denote
   :general(:states 'normal :prefix "<SPC>o"
 				   "a" 'org-agenda
@@ -302,7 +298,7 @@
   :config
   (consult-denote-mode 1))
 (setq org-agenda-files '(
-	  "~/Documents/orgAgenda/habits.org"
+	  "~/Documents/orgAgenda/home.org"
 	  "~/Documents/orgAgenda/personal.org"
 	  "~/Documents/orgAgenda/habits.org"))
 
@@ -346,3 +342,29 @@
   :config
   (add-hook 'eshell-load-hook 'eat-eshell-mode)
   (add-hook 'eshell-load-hook 'eat-eshell-visual-command-mode))
+(use-package mpv)
+(use-package elfeed-tube
+  :after elfeed
+  :demand t
+  :config
+  ;; (setq elfeed-tube-auto-save-p nil) ; default value
+  ;; (setq elfeed-tube-auto-fetch-p t)  ; default value
+  (elfeed-tube-setup)
+  :bind (:map elfeed-show-mode-map
+         ("F" . elfeed-tube-fetch)
+         ([remap save-buffer] . elfeed-tube-save)
+         :map elfeed-search-mode-map
+         ("F" . elfeed-tube-fetch)
+         ([remap save-buffer] . elfeed-tube-save)))
+(use-package elfeed-goodies
+  :after elfeed
+  :config
+  (elfeed-goodies/setup))
+(use-package elfeed-tube-mpv
+  :after elfeed-tube)
+(use-package emms
+  :config
+  (setq emms-source-file-default-directory "~/Music/")
+  (emms-all)
+  (setq emms-player-list '(emms-player-mpv)
+      emms-info-functions '(emms-info-native)))

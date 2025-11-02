@@ -38,13 +38,13 @@
 (defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
 (defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
 (defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
-							  :ref nil :depth 1 :inherit ignore
+                              :ref nil :depth 1 :inherit ignore
                               :files (:defaults "elpaca-test.el" (:exclude "extensions"))
                               :build (:not elpaca--activate-package)))
 (let* ((repo  (expand-file-name "elpaca/" elpaca-repos-directory))
        (build (expand-file-name "elpaca/" elpaca-builds-directory))
        (order (cdr elpaca-order))
-	   (default-directory repo))
+       (default-directory repo))
   (add-to-list 'load-path (if (file-exists-p build) build repo))
   (unless (file-exists-p repo)
     (make-directory repo t)
@@ -85,11 +85,15 @@
   (evil-mode 1))
 
 (use-package anzu
-:config
-(global-anzu-mode 1))
+  :config
+  (global-anzu-mode 1))
+
+(use-package avy
+  :general(:states 'normal
+				   "f" 'evil-avy-goto-char))
 
 (use-package evil-anzu
-:after evil anzu)
+  :after evil anzu)
 
 (use-package undo-tree
   :config
@@ -99,7 +103,7 @@
 
 (use-package evil-nerd-commenter
   :after evil
-  :general("C-c ;" 'evilnc-comment-or-uncomment-lines))
+  :general("C-;" 'evilnc-comment-or-uncomment-lines))
 
 (use-package doom-themes
   :config
@@ -128,10 +132,10 @@
   (prog-mode . rainbow-delimiters-mode))
 
 (use-package projectile
-   :after evil
-   :config
-   (evil-global-set-key 'normal (kbd "<SPC>p") 'projectile-command-map)
-   (projectile-mode 1))
+  :after evil
+  :config
+  (evil-global-set-key 'normal (kbd "<SPC>p") 'projectile-command-map)
+  (projectile-mode 1))
 
 (use-package vertico
   :general (:states 'normal :prefix "<SPC>"
@@ -172,9 +176,9 @@
   (global-corfu-mode)
   :config
   (setq corfu-auto t
-      corfu-auto-delay  0.1
-      corfu-auto-prefix 0.1
-      corfu-quit-no-match t))
+		corfu-auto-delay  0.1
+		corfu-auto-prefix 0.1
+		corfu-quit-no-match t))
 
 (use-package cape
   :after yasnippet-capf orderless
@@ -245,7 +249,8 @@
 				   "r" 'magit-remote
 				   "o" 'magit-checkout
 				   "b" 'magit-branch
-				   "C" 'magit-clone))
+				   "C" 'magit-clone
+				   "d" 'magit-diff))
 
 (use-package diff-hl
   :defer t
@@ -305,13 +310,13 @@
   (eat)
   :ensure
   '(:type git
-       :host codeberg
-       :repo "akib/emacs-eat"
-       :files ("*.el" ("term" "term/*.el") "*.texi"
-               "*.ti" ("terminfo/e" "terminfo/e/*")
-               ("terminfo/65" "terminfo/65/*")
-               ("integration" "integration/*")
-               (:exclude ".dir-locals.el" "*-tests.el")))
+		  :host codeberg
+		  :repo "akib/emacs-eat"
+		  :files ("*.el" ("term" "term/*.el") "*.texi"
+				  "*.ti" ("terminfo/e" "terminfo/e/*")
+				  ("terminfo/65" "terminfo/65/*")
+				  ("integration" "integration/*")
+				  (:exclude ".dir-locals.el" "*-tests.el")))
 
   :general (:states 'normal
 					"<SPC>t" 'eat-other-window)

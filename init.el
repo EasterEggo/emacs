@@ -1,5 +1,18 @@
-;init.el -*- lexical-binding: t; -*- 
+;; -*- lexical-binding: t; -*-
+(setq initial-scratch-message ";;
+;; ░█░█░█▀▀░█░░░█▀▀░█▀█░█▄█░█▀▀░░░▀█▀░█▀█░░░█▀▀░█▄█░█▀█░█▀▀░█▀▀
+;; ░█▄█░█▀▀░█░░░█░░░█░█░█░█░█▀▀░░░░█░░█░█░░░█▀▀░█░█░█▀█░█░░░▀▀█
+;; ░▀░▀░▀▀▀░▀▀▀░▀▀▀░▀▀▀░▀░▀░▀▀▀░░░░▀░░▀▀▀░░░▀▀▀░▀░▀░▀░▀░▀▀▀░▀▀▀
+;;
+")
+
+(setq display-line-numbers-type 'relative)
+(add-hook 'prog-mode-hook 'display-line-numbers-mode)
+(add-hook 'dired-mode-hook 'dired-hide-details-mode)
+(add-hook 'text-mode-hook 'display-line-numbers-mode)
+(add-hook 'org-mode-hook 'org-indent-mode)
 (setq native-comp-deferred-compilation t)
+(setq org-hide-emphasis-markers t)
 (setq inhibit-startup-screen t)
 (menu-bar-mode 0)
 (tool-bar-mode 0)
@@ -12,12 +25,14 @@
 (which-key-mode 1)
 (savehist-mode 1)
 (setq pixel-scroll-mode 1)
+(defalias 'yes-or-no-p 'y-or-n-p)
 (setq electric-pair-pairs
       '(
         (?\" . ?\")
         (?\{ . ?\})))
 (setq-default tab-width 4)
 (setq-default tab-always-indent t)
+
 (defvar elpaca-installer-version 0.11)
 (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
 (defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
@@ -64,41 +79,60 @@
 (use-package general
   :ensure (:wait t))
 
-;(use-package modus-themes
-;  :config
-;  (load-theme 'modus-vivendi t))
-(use-package ef-themes)
-  ;; :init
-  ;; (mapc #'disable-theme custom-enabled-themes)
-  ;; (load-theme 'ef-dream t))
-(use-package doom-themes
-  :init
-  (mapc #'disable-theme custom-enabled-themes)
-  (load-theme 'doom-gruvbox t))
-(use-package doom-modeline
-  :init (doom-modeline-mode 1))
+(use-package evil
+  :after undo-tree
+  :config
+  (evil-mode 1))
 
-(use-package nerd-icons
-  :after doom-modeline)
+(use-package anzu
+:config
+(global-anzu-mode 1))
+
+(use-package evil-anzu
+:after evil anzu)
+
+(use-package undo-tree
+  :config
+  (global-undo-tree-mode 1)
+  (setq undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo"))))
+(setq evil-undo-system 'undo-tree)
+
+(use-package evil-nerd-commenter
+  :after evil
+  :general("C-c ;" 'evilnc-comment-or-uncomment-lines))
+
+(use-package doom-themes
+  :config
+  (load-theme 'doom-one t))
+
+(use-package doom-modeline
+  :init (doom-modeline-mode 1)
+  :config
+  (setq inhibit-compacting-font-caches t)
+  (setq doom-modeline-height 30)
+  (setq doom-modeline-project-detection 'auto))
+
+(use-package nerd-icons)
+
+(use-package nerd-icons-dired
+  :after nerd-icons
+  :hook (dired-mode . nerd-icons-dired-mode))
+
+(use-package nerd-icons-corfu
+  :after corfu nerd-icons
+  :config
+  (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
 
 (use-package rainbow-delimiters
   :hook
   (prog-mode . rainbow-delimiters-mode))
 
-(use-package evil
-  :config
-  (evil-mode 1))
+(use-package projectile
+   :after evil
+   :config
+   (evil-global-set-key 'normal (kbd "<SPC>p") 'projectile-command-map)
+   (projectile-mode 1))
 
-(use-package undo-tree
-  :config
-  (setq undo-tree-history-directory-alist '(("." . "~/.emacs.config/undo")))
-  (global-undo-tree-mode 1))
-(setq evil-undo-system 'undo-tree)
-
-(use-package evil-nerd-commenter
-  :after evil
-  :general(:states 'normal
-				   "<SPC>;" 'evilnc-comment-or-uncomment-lines))
 (use-package vertico
   :general (:states 'normal :prefix "<SPC>"
 					"." 'find-file
@@ -116,6 +150,7 @@
               ("DEL" . vertico-directory-delete-char)
               ("M-DEL" . vertico-directory-delete-word))
   :hook (rfn-eshadow-update-overlay . vertico-directory-tidy))
+
 (use-package consult
   :general (:states 'normal :prefix "<SPC>"
 					"sd" 'consult-find
@@ -126,11 +161,6 @@
 					"st" 'consult-theme
 					"sl" 'consult-line))
 
-(use-package projectile
-  :after evil
-  :config
-  (evil-global-set-key 'normal (kbd "<SPC>p") 'projectile-command-map)
-  (projectile-mode 1))
 
 (use-package corfu
   :after evil
@@ -144,18 +174,29 @@
   (setq corfu-auto t
       corfu-auto-delay  0.1
       corfu-auto-prefix 0.1
-      corfu-quit-no-match t)
-  (add-hook 'corfu-mode-hook
-			(lambda ()
-              (setq-local completion-styles '(basic)
-                          completion-category-overrides nil
-                          completion-category-defaults nil))))
+      corfu-quit-no-match t))
+
 (use-package cape
-  :after corfu
+  :after yasnippet-capf orderless
   :init
   (add-hook 'completion-at-point-functions #'cape-file)
   (add-hook 'completion-at-point-functions #'cape-elisp-block)
-  (add-hook 'completion-at-point-functions #'cape-history))
+  (add-hook 'completion-at-point-functions #'cape-history)
+  :config
+  (with-eval-after-load 'eglot
+	(setq completion-category-defaults nil))
+  (defun sb/eglot-capf-with-yasnippet ()
+	(setq-local completion-at-point-functions
+				(list
+				 (cape-capf-super
+				  #'eglot-completion-at-point
+				  #'yasnippet-capf))))
+  (add-hook 'eglot-managed-mode-hook #'sb/eglot-capf-with-yasnippet)
+  (advice-add 'eglot-completion-at-point :around #'cape-wrap-buster))
+
+(use-package eldoc-box
+  :config
+  (if (display-graphic-p) (add-hook 'eglot-managed-mode-hook #'eldoc-box-mouse-mode)))
 
 (use-package orderless
   :after corfu
@@ -164,37 +205,31 @@
   (completion-category-defaults nil)
   (completion-category-overrides '((file (styles partial-completion)))))
 
+(use-package yasnippet
+  :config
+  (yas-reload-all)
+  :hook
+  (prog-mode-hook . yas-minor-mode)
+  (org-mode . yas-minor-mode))
+
+(use-package yasnippet-snippets)
+
+(use-package yasnippet-capf
+  :init
+  (defun my/yasnippet-capf-h ()
+    (add-to-list 'completion-at-point-functions #'yasnippet-capf))
+  :hook
+  (prog-mode . my/yasnippet-capf-h)
+  (org-mode . my/yasnippet-capf-h)
+  (eglot-managed-mode . my/yasnippet-capf-h))
+
 (use-package marginalia
   :after vertico
   :init
   (marginalia-mode))
 
-(use-package dashboard
-  :config
-  (add-hook 'dashboard-mode-hook '(diff-hl-mode 0))
-  (setq dashboard-startup-banner '("~/emacs/defaultConfig/.emacs.config/dash.txt"))
-  (setq dashboard-display-icons-p t)
-  (setq dashboard-center-content t)
-  (setq dashboard-vertically-center-content t)
-  (setq dashboard-icon-type 'nerd-icons)
-  (setq dashboard-set-heading-icons t)
-  (setq dashboard-startupify-list '(dashboard-insert-banner
-									dashboard-insert-navigator
-									dashboard-insert-items
-									dashboard-insert-init-info
-									dashboard-insert-newline
-									dashboard-insert-footer))
-  (setq dashboard-set-file-icons t)
-  (setq dashboard-projects-backend 'projectile)
-  (setq dashboard-items '((recents   . 5)
-                          (bookmarks . 5)
-                          (projects  . 5)
-                          (agenda    . 5)))
-  (add-hook 'elpaca-after-init-hook #'dashboard-insert-startupify-lists)
-  (add-hook 'elpaca-after-init-hook #'dashboard-initialize)
-  (dashboard-setup-startup-hook))
-  (setq initial-buffer-choice (lambda () (get-buffer-create dashboard-buffer-name)))
 (use-package transient)
+
 (use-package magit
   :after transient
   :general(:states 'normal
@@ -211,55 +246,16 @@
 				   "o" 'magit-checkout
 				   "b" 'magit-branch
 				   "C" 'magit-clone))
+
 (use-package diff-hl
   :defer t
   :init
   (global-diff-hl-mode)
   (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh))
-(use-package centaur-tabs
-  :hook
-  (dashboard-mode . centaur-tabs-local-mode)
-  (eat-mode . centaur-tabs-local-mode)
-  (term-mode . centaur-tabs-local-mode)
-  (calendar-mode . centaur-tabs-local-mode)
-  (org-agenda-mode . centaur-tabs-local-mode)
-  (elfeed-show-mode . centaur-tabs-local-mode)
-  (dired-mode . centaur-tabs-local-mode)
-  :config
-  (setq centaur-tabs-set-icons t)
-  (setq centaur-tabs-icon-type 'nerd-icons)
-  (setq centaur-tabs-set-modified-marker t)
-  (setq centaur-tabs-height 32)
-  (centaur-tabs-mode t))
-(defun lsp-booster--advice-json-parse (old-fn &rest args)
-  "Try to parse bytecode instead of json."
-  (or
-   (when (equal (following-char) ?#)
-     (let ((bytecode (read (current-buffer))))
-       (when (byte-code-function-p bytecode)
-         (funcall bytecode))))
-   (apply old-fn args)))
-(advice-add (if (progn (require 'json)
-                       (fboundp 'json-parse-buffer))
-                'json-parse-buffer
-              'json-read)
-            :around
-            #'lsp-booster--advice-json-parse)
-(defun lsp-booster--advice-final-command (old-fn cmd &optional test?)
-  "Prepend emacs-lsp-booster command to lsp CMD."
-  (let ((orig-result (funcall old-fn cmd test?)))
-    (if (and (not test?)                             
-             (not (file-remote-p default-directory))
-             lsp-use-plists
-             (not (functionp 'json-rpc-connection))
-             (executable-find "emacs-lsp-booster"))
-        (progn
-          (when-let ((command-from-exec-path (executable-find (car orig-result))))
-            (setcar orig-result command-from-exec-path))
-          (message "Using emacs-lsp-booster for %s!" orig-result)
-          (cons "emacs-lsp-booster" orig-result))
-      orig-result)))
-(advice-add 'lsp-resolve-final-command :around #'lsp-booster--advice-final-command)
+
+(use-package toc-org
+  :hook (org-mode . toc-org-mode))
+
 (use-package denote
   :general(:states 'normal :prefix "<SPC>o"
 				   "a" 'org-agenda
@@ -272,8 +268,9 @@
 				   "d" 'denote-dired
 				   "g" 'denote-grep)
   :config
-  (setq denote-directory (expand-file-name "~/Documents/denote"))
+  (setq denote-directory (expand-file-name "/mnt/hdd/denote/"))
   (denote-rename-buffer-mode 1))
+
 (use-package denote-journal
   :commands ( denote-journal-new-entry
               denote-journal-new-or-existing-entry
@@ -288,6 +285,7 @@
         (expand-file-name "journal" denote-directory))
   (setq denote-journal-keyword "journal")
   (setq denote-journal-title-format 'day-date-month-year))
+
 (use-package consult-denote
   :commands (consult-denote-find
 			 consult-denote-grep)
@@ -297,36 +295,14 @@
 		   "g" 'consult-denote-grep)
   :config
   (consult-denote-mode 1))
-(setq org-agenda-files '(
-	  "~/Documents/orgAgenda/home.org"
-	  "~/Documents/orgAgenda/personal.org"
-	  "~/Documents/orgAgenda/habits.org"))
 
-(add-hook 'prog-mode-hook 'display-line-numbers-mode)
-(add-hook 'text-mode-hook 'display-line-numbers-mode)
-(add-hook 'org-mode-hook 'org-indent-mode)
-(setq org-hide-emphasis-markers t)
 (use-package ein
   :commands (ein:run
 			 ein:login))
-(use-package pdf-tools
-  :commands (pdf-loader-install)
-  :config
-  (pdf-loader-install)
-  (add-hook 'pdf-view-mode-hook (lambda() (display-line-numbers-mode -1))))
-(add-hook 'dired-mode-hook 'dired-hide-details-mode)
-(use-package nerd-icons-dired
-  :hook (dired-mode . nerd-icons-dired-mode))
 
-(use-package elfeed
-  :general (:states 'normal
-					"<SPC>ff" 'elfeed
-					"<SPC>fu" 'elfeed-update))
-(use-package elfeed-org
-  :config
-  (elfeed-org)
-  (setq rmh-elfeed-org-files (list "~/Documents/feeds.org")))
 (use-package eat
+  :commands
+  (eat)
   :ensure
   '(:type git
        :host codeberg
@@ -342,29 +318,36 @@
   :config
   (add-hook 'eshell-load-hook 'eat-eshell-mode)
   (add-hook 'eshell-load-hook 'eat-eshell-visual-command-mode))
-(use-package mpv)
-(use-package elfeed-tube
-  :after elfeed
-  :demand t
+
+(use-package flycheck
+  :ensure t
   :config
-  ;; (setq elfeed-tube-auto-save-p nil) ; default value
-  ;; (setq elfeed-tube-auto-fetch-p t)  ; default value
-  (elfeed-tube-setup)
-  :bind (:map elfeed-show-mode-map
-         ("F" . elfeed-tube-fetch)
-         ([remap save-buffer] . elfeed-tube-save)
-         :map elfeed-search-mode-map
-         ("F" . elfeed-tube-fetch)
-         ([remap save-buffer] . elfeed-tube-save)))
-(use-package elfeed-goodies
-  :after elfeed
+  (add-hook 'after-init-hook #'global-flycheck-mode))
+
+(use-package dape
+  :preface
+  ;; By default dape shares the same keybinding prefix as `gud'
+  ;; If you do not want to use any prefix, set it to nil.
+  ;; (setq dape-key-prefix "\C-x\C-a")
+
+  :hook
+  (kill-emacs . dape-breakpoint-save)
+  (after-init . dape-breakpoint-load)
+
+  :custom
+  (dape-breakpoint-global-mode +1)
+  (dape-buffer-window-arrangement 'right)
+  (dape-cwd-function #'projectile-project-root)
+
   :config
-  (elfeed-goodies/setup))
-(use-package elfeed-tube-mpv
-  :after elfeed-tube)
-(use-package emms
+  (add-hook 'dape-display-source-hook #'pulse-momentary-highlight-one-line)
+  (add-hook 'dape-start-hook (lambda () (save-some-buffers t t)))
+  (add-hook 'dape-compile-hook #'kill-buffer))
+
+(use-package neotree
   :config
-  (setq emms-source-file-default-directory "~/Music/")
-  (emms-all)
-  (setq emms-player-list '(emms-player-mpv)
-      emms-info-functions '(emms-info-native)))
+  (setq neo-theme 'nerd-icons)
+  :general
+  (:states 'normal :prefix "<SPC>e"
+		   "e" 'neotree-toggle
+		   "d" 'neotree-dir))

@@ -1,3 +1,0 @@
-[submodule "chemacs/.emacs.d"]
-	path = chemacs/.emacs.d
-	url = https://github.com/plexus/chemacs2.git

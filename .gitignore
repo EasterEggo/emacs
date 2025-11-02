@@ -1,17 +1,13 @@
-# Compiled
-*.elc
-
-# Packaging
-.cask/
-.eask/
-.eldev/
-.keg/
-
-# Built distribution
-dist/
-
-# Backup files
-*~
-
-# Undo-tree save-files
-*.~undo-tree
+/.cache/
+/auto-save-list/
+/dape-breakpoints
+/eln-cache/
+/projectile-bookmarks.eld
+/recentf
+/url/
+/undo/
+/transient/
+/elpaca/
+/.lsp-session-v1
+/tramp
+/history

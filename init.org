@@ -14,8 +14,12 @@
   - [[#note-taking-related-packages][Note Taking Related Packages]]
   - [[#ipython-notebooklike-jupyter][Ipython Notebook(Like Jupyter)]]
   - [[#terminal-emulator][Terminal Emulator]]
+  - [[#read-documents][Read Documents]]
   - [[#debugging-and-error-checking][Debugging and Error Checking]]
   - [[#file-tree][File Tree]]
+  - [[#rss][RSS]]
+  - [[#rest-api-interaction][Rest API Interaction]]
+  - [[#some-bindings][Some Bindings]]
 
 ** Custom Scratch Buffer
 #+begin_src emacs-lisp 
@@ -34,9 +38,7 @@
   (add-hook 'prog-mode-hook 'display-line-numbers-mode)
   (add-hook 'dired-mode-hook 'dired-hide-details-mode)
   (add-hook 'text-mode-hook 'display-line-numbers-mode)
-  (add-hook 'org-mode-hook 'org-indent-mode)
   (setq native-comp-deferred-compilation t)
-  (setq org-hide-emphasis-markers t)
   (setq inhibit-startup-screen t)
   (menu-bar-mode 0)
   (tool-bar-mode 0)
@@ -56,7 +58,6 @@
           (?\{ . ?\})))
   (setq-default tab-width 4)
   (setq-default tab-always-indent t)
-
 #+end_src
   
 ** Initialize Elpaca Package Manager
@@ -149,6 +150,10 @@
     :config
     (load-theme 'doom-one t))
 
+  (use-package modus-themes
+    ;; :config (load-theme 'modus-vivendi t)
+    )
+
   (use-package doom-modeline
     :init (doom-modeline-mode 1)
     :config
@@ -202,14 +207,16 @@
     :hook (rfn-eshadow-update-overlay . vertico-directory-tidy))
 
   (use-package consult
-    :general (:states 'normal :prefix "<SPC>"
-  					"sd" 'consult-find
-  					"sg" 'consult-ripgrep
-  					"sr" 'consult-recent-file
-  					"sB" 'consult-bookmark
-  					"sb" 'consult-buffer
-  					"st" 'consult-theme
-  					"sl" 'consult-line))
+    :general(:states 'normal
+                     :prefix "<SPC>s"
+  				   ""  '(:ignore t :which-key "Consult")
+                     "d" 'consult-find
+                     "g" 'consult-ripgrep
+                     "r" 'consult-recent-file
+                     "B" 'consult-bookmark
+                     "b" 'consult-buffer
+                     "t" 'consult-theme
+                     "l" 'consult-line))
 
 
   (use-package corfu
@@ -257,7 +264,7 @@
 
   (use-package yasnippet
     :config
-    (yas-reload-all)
+    (add-hook 'after-init-hook #'yas-reload-all)
     :hook
     (prog-mode-hook . yas-minor-mode)
     (org-mode . yas-minor-mode))
@@ -277,7 +284,6 @@
     :after vertico
     :init
     (marginalia-mode))
-
 #+end_src
 
 ** Git
@@ -287,20 +293,21 @@
   (use-package magit
     :after transient
     :general(:states 'normal
-  				   :prefix "<SPC>g"
-  				   "g" 'magit
-  				   "p" 'magit-push
-  				   "P" 'magit-pull
-  				   "c" 'magit-commit
-  				   "i" 'magit-init
-  				   "s" 'magit-stage
-  				   "u" 'magit-unstage-files
-  				   "U" 'magit-unstage-all
-  				   "r" 'magit-remote
-  				   "o" 'magit-checkout
-  				   "b" 'magit-branch
-  				   "C" 'magit-clone
-  				   "d" 'magit-diff))
+                     :prefix "<SPC>g"
+  				   ""  '(:ignore t :which-key "Git")
+                     "g" 'magit
+                     "p" 'magit-push
+                     "P" 'magit-pull
+                     "c" 'magit-commit
+                     "i" 'magit-init
+                     "s" 'magit-stage
+                     "u" 'magit-unstage-files
+                     "U" 'magit-unstage-all
+                     "r" 'magit-remote
+                     "o" 'magit-checkout
+                     "b" 'magit-branch
+                     "C" 'magit-clone
+                     "d" 'magit-diff))
 
   (use-package diff-hl
     :defer t
@@ -315,16 +322,17 @@
     :hook (org-mode . toc-org-mode))
 
   (use-package denote
-    :general(:states 'normal :prefix "<SPC>o"
-  				   "a" 'org-agenda
-  				   "n" 'denote
-  				   "r" 'denote-rename-file
-  				   "l" 'denote-link
-  				   "qc" 'denote-query-contents-link
-  				   "qf" 'denote-query-filenames-link
-  				   "b" 'denote-backlinks
-  				   "d" 'denote-dired
-  				   "g" 'denote-grep)
+    :general(:states 'normal
+                     :prefix "<SPC>od"
+  				   ""  '(:ignore t :which-key "Denote")
+                     "n" 'denote
+                     "r" 'denote-rename-file
+                     "l" 'denote-link
+                     "qc" 'denote-query-contents-link
+                     "qf" 'denote-query-filenames-link
+                     "b" 'denote-backlinks
+                     "d" 'denote-dired
+                     "g" 'denote-grep)
     :config
     (setq denote-directory (expand-file-name "/mnt/hdd/denote/"))
     (denote-rename-buffer-mode 1))
@@ -333,10 +341,12 @@
     :commands ( denote-journal-new-entry
                 denote-journal-new-or-existing-entry
                 denote-journal-link-or-create-entry)
-    :general (:states 'normal :prefix "<SPC>oj"
-  					"j" 'denote-journal-new-entry
-  					"e" 'denote-journal-new-or-existing-entry
-  					"l" 'denote-journal-link-or-create-entry)
+    :general(:states 'normal
+                     :prefix "<SPC>odj"
+  				   ""  '(:ignore t :which-key "Journal")
+                     "j" 'denote-journal-new-entry
+                     "e" 'denote-journal-new-or-existing-entry
+                     "l" 'denote-journal-link-or-create-entry)
     :config
     (add-hook 'calendar-mode-hook #'denote-journal-calendar-mode)
     (setq denote-journal-directory
@@ -344,17 +354,29 @@
     (setq denote-journal-keyword "journal")
     (setq denote-journal-title-format 'day-date-month-year))
 
+  (use-package org
+    :config
+    (org-babel-do-load-languages
+     'org-babel-load-languages
+     '((python . t)))
+    (add-hook 'org-mode-hook 'org-indent-mode)
+    (setq org-hide-emphasis-markers t)
+    :general(:states 'normal
+  				   :prefix "<SPC>o"
+  				   ""  '(:ignore t :which-key "Org")
+  				   "a" 'org-agenda
+                     "t" 'org-babel-tangle))
+
   (use-package consult-denote
     :commands (consult-denote-find
-  			 consult-denote-grep)
-    :general
-    (:states 'normal :prefix "<SPC>of"
-  		   "f" 'consult-denote-find
-  		   "g" 'consult-denote-grep)
+               consult-denote-grep)
+    :general(:states 'normal
+                     :prefix "<SPC>odf"
+  				   ""  '(:ignore t :which-key "Find Note")
+                     "f" 'consult-denote-find
+                     "g" 'consult-denote-grep)
     :config
     (consult-denote-mode 1))
-
-
 #+end_src
 
 ** Ipython Notebook(Like Jupyter)
@@ -386,13 +408,15 @@
     (add-hook 'eshell-load-hook 'eat-eshell-visual-command-mode))
 #+end_src
   
+** Read Documents
+#+begin_src emacs-lisp
+  (use-package nov)
+  (use-package pdf-tools
+    :config (pdf-loader-install))
+#+end_src
+
 ** Debugging and Error Checking
 #+begin_src emacs-lisp
-  (use-package flycheck
-    :ensure t
-    :config
-    (add-hook 'after-init-hook #'global-flycheck-mode))
-
   (use-package dape
     :preface
     ;; By default dape shares the same keybinding prefix as `gud'
@@ -420,7 +444,56 @@
     :config
     (setq neo-theme 'nerd-icons)
     :general
-    (:states 'normal :prefix "<SPC>e"
-  		   "e" 'neotree-toggle
-  		   "d" 'neotree-dir))
+    (:states 'normal
+             :prefix "<SPC>e"
+  		   ""  '(:ignore t :which-key "Neotree")
+             "e" 'neotree-toggle
+             "d" 'neotree-dir))
+#+end_src
+
+** RSS
+#+begin_src emacs-lisp :tangle yes
+  (use-package elfeed
+    :config
+    (add-hook 'elfeed-new-entry-hook
+              (elfeed-make-tagger :before "2 weeks ago"
+                                  :remove 'unread))
+    :bind(:map elfeed-search-mode-map
+               ("U" . elfeed-update)))
+
+  (use-package elfeed-goodies
+    :config (elfeed-goodies/setup))
+
+  (use-package elfeed-org
+    :after elfeed
+    :custom
+    (rmh-elfeed-org-files
+     (list "~/.emacs.d/feed.org"))
+    )
+  (with-eval-after-load 'elfeed
+    (elfeed-org))
+#+end_src
+
+** Rest API Interaction
+#+begin_src emacs-lisp
+  (use-package verb
+    :config
+    (evil-define-key 'normal org-mode-map (kbd "<SPC>la") verb-command-map))
+#+end_src
+
+** Some Bindings
+*** Code Related
+#+begin_src emacs-lisp :tangle yes
+  ;; folding
+  (add-hook 'prog-mode-hook 'hs-minor-mode)
+  (with-eval-after-load 'general
+    (general-define-key :states 'normal :prefix "<SPC>cf"
+                        ""  '(:ignore t :which-key "Fold/Unfold")
+                        "f" 'hs-toggle-hiding
+                        "a" 'hs-hide-all
+                        "A" 'hs-show-all)
+    ;; lsp
+    (general-define-key :states 'normal :prefix "<SPC>c"
+  					  ""  '(:ignore t :which-key "Code")
+  					  "l" 'eglot))
 #+end_src

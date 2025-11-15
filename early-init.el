@@ -5,4 +5,5 @@
 ; 'user
 ; '(variable-pitch ((t (:family "aporetic-sans-normal" :height 130 :weight regular))))
 ; '(fixed-pitch ((t ( :family "aporetic-serif-mono" :height 130)))))
+(setq inhibit-x-resources t) (setq-default inhibit-redisplay t) (add-hook 'window-setup-hook (lambda () (setq-default inhibit-redisplay nil) (redisplay)) 100) 
 (setq package-enable-at-startup nil)

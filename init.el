@@ -6,7 +6,9 @@
 ;;
 ")
 
+(setq display-line-numbers-widen t)
 (setq display-line-numbers-type 'relative)
+(setq display-line-numbers-width 4)
 (add-hook 'prog-mode-hook 'display-line-numbers-mode)
 (add-hook 'dired-mode-hook 'dired-hide-details-mode)
 (add-hook 'text-mode-hook 'display-line-numbers-mode)
@@ -180,8 +182,9 @@
   (global-corfu-mode)
   :config
   (setq corfu-auto t
-		corfu-auto-delay  0.1
-		corfu-auto-prefix 0.1
+		corfu-auto-delay 0.2 
+		corfu-auto-trigger "."
+		corfu-auto-prefix 0.2
 		corfu-quit-no-match t))
 
 (use-package cape

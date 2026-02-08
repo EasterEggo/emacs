@@ -148,35 +148,35 @@
   
 ** Icons and Other Eye Candy
 #+begin_src emacs-lisp
-  (use-package doom-themes
-    :config
-    (load-theme 'doom-one t))
+    (use-package doom-themes
+      :config
+      (load-theme 'doom-one t))
 
-  (use-package modus-themes
-    ;; :config (load-theme 'modus-vivendi t)
-    )
+    (use-package modus-themes
+      ;; :config (load-theme 'modus-vivendi t)
+      )
 
-  (use-package doom-modeline
-    :init (doom-modeline-mode 1)
-    :config
-    (setq inhibit-compacting-font-caches t)
-    (setq doom-modeline-height 30)
-    (setq doom-modeline-project-detection 'auto))
+    (use-package doom-modeline
+      :init (doom-modeline-mode 1)
+      :config
+      (setq inhibit-compacting-font-caches t)
+      (setq doom-modeline-height 30)
+      (setq doom-modeline-project-detection 'auto))
 
-  (use-package nerd-icons)
+    (use-package nerd-icons)
 
-  (use-package nerd-icons-dired
-    :after nerd-icons
-    :hook (dired-mode . nerd-icons-dired-mode))
+    (use-package nerd-icons-dired
+      :after nerd-icons
+      :hook (dired-mode . nerd-icons-dired-mode))
 
-  (use-package nerd-icons-corfu
-    :after corfu nerd-icons
-    :config
-    (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
+    (use-package nerd-icons-corfu
+      :after corfu nerd-icons
+      :config
+      (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
 
-  (use-package rainbow-delimiters
-    :hook
-    (prog-mode . rainbow-delimiters-mode))
+    (use-package rainbow-delimiters
+      :hook
+      (prog-mode . rainbow-delimiters-mode))
 #+end_src
 
 ** Projects
@@ -327,7 +327,7 @@
   (use-package denote
     :general(:states 'normal
                      :prefix "<SPC>od"
-  				   ""  '(:ignore t :which-key "Denote")
+   				   ""  '(:ignore t :which-key "Denote")
                      "n" 'denote
                      "r" 'denote-rename-file
                      "l" 'denote-link
@@ -346,7 +346,7 @@
                 denote-journal-link-or-create-entry)
     :general(:states 'normal
                      :prefix "<SPC>odj"
-  				   ""  '(:ignore t :which-key "Journal")
+   				   ""  '(:ignore t :which-key "Journal")
                      "j" 'denote-journal-new-entry
                      "e" 'denote-journal-new-or-existing-entry
                      "l" 'denote-journal-link-or-create-entry)
@@ -368,16 +368,33 @@
   				   :prefix "<SPC>o"
   				   ""  '(:ignore t :which-key "Org")
   				   "a" 'org-agenda
-                     "t" 'org-babel-tangle))
+  				   "t" 'org-babel-tangle))
 
+  (use-package org-roam
+    :ensure t
+    :custom
+    (org-roam-directory (file-truename "~/orgroamNotes/"))
+    :bind (("C-c n l" . org-roam-buffer-toggle)
+   		 ("C-c n f" . org-roam-node-find)
+   		 ("C-c n g" . org-roam-graph)
+   		 ("C-c n i" . org-roam-node-insert)
+   		 ("C-c n c" . org-roam-capture)
+   		 ;; Dailies
+   		 ("C-c n j" . org-roam-dailies-capture-today))
+    :config
+    ;; If you're using a vertical completion framework, you might want a more informative completion interface
+    (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
+    (org-roam-db-autosync-mode)
+    ;; If using org-roam-protocol
+    (require 'org-roam-protocol))
   (use-package consult-denote
     :commands (consult-denote-find
-               consult-denote-grep)
+  			 consult-denote-grep)
     :general(:states 'normal
-                     :prefix "<SPC>odf"
+  				   :prefix "<SPC>odf"
   				   ""  '(:ignore t :which-key "Find Note")
-                     "f" 'consult-denote-find
-                     "g" 'consult-denote-grep)
+  				   "f" 'consult-denote-find
+  				   "g" 'consult-denote-grep)
     :config
     (consult-denote-mode 1))
 #+end_src

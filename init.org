@@ -1,25 +1,6 @@
 #+property: header-args :tangle yes
 
 * Emacs Config :TOC:
-  - [[#custom-scratch-buffer][Custom Scratch Buffer]]
-  - [[#initial-options][Initial Options]]
-  - [[#initialize-elpaca-package-manager][Initialize Elpaca Package Manager]]
-  - [[#elpaca-use-package-integration][Elpaca Use Package Integration]]
-  - [[#generalel-for-easy-keybindings][General.el for Easy Keybindings]]
-  - [[#evil-mode-and-related-packages][Evil Mode and Related Packages]]
-  - [[#icons-and-other-eye-candy][Icons and Other Eye Candy]]
-  - [[#projects][Projects]]
-  - [[#completionlsp-related-packages][Completion/LSP Related Packages]]
-  - [[#git][Git]]
-  - [[#note-taking-related-packages][Note Taking Related Packages]]
-  - [[#ipython-notebooklike-jupyter][Ipython Notebook(Like Jupyter)]]
-  - [[#terminal-emulator][Terminal Emulator]]
-  - [[#read-documents][Read Documents]]
-  - [[#debugging-and-error-checking][Debugging and Error Checking]]
-  - [[#file-tree][File Tree]]
-  - [[#rss][RSS]]
-  - [[#rest-api-interaction][Rest API Interaction]]
-  - [[#some-bindings][Some Bindings]]
 
 ** Custom Scratch Buffer
 #+begin_src emacs-lisp 
